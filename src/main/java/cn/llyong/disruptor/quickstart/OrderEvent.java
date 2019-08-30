@@ -14,8 +14,6 @@ import lombok.ToString;
 @ToString
 public class OrderEvent {
 
-    private String orderId;
-    private String name;
-    private Integer num;
+    private Long orderId;
 
 }

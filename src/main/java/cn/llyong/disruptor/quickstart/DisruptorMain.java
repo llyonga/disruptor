@@ -1,10 +1,15 @@
 package cn.llyong.disruptor.quickstart;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static java.util.concurrent.Executors.*;
 
 /**
  * @description:
@@ -22,9 +27,32 @@ public class DisruptorMain {
 
         int ringBufferSize = 1024 * 1024;
 
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService executor = newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(orderEventFactory, ringBufferSize, executor, ProducerType.SINGLE, );
+        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(orderEventFactory, ringBufferSize, executor, ProducerType.SINGLE, new BlockingWaitStrategy());
+
+        //2、添加消费者的监听
+        disruptor.handleEventsWith(new OrderEventHandler());
+
+        //3、启动disruptor
+        disruptor.start();
+
+        //4、获取实际存储数据的容器：RingBuffer
+        RingBuffer<OrderEvent> ringBuffer = disruptor.getRingBuffer();
+
+        OrderEventProducer producer = new OrderEventProducer(ringBuffer);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+
+        for (int i = 1; i <= 100; i++) {
+            byteBuffer.putLong(0, i);
+            producer.sendData(byteBuffer);
+        }
+
+        disruptor.shutdown();
+        executor.shutdown();
+
+
 
     }
 }
