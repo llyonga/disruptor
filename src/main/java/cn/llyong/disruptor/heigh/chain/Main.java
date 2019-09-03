@@ -34,7 +34,7 @@ public class Main {
                     }
                 },
                 1024 * 1024,
-                executor2,
+                Executors.defaultThreadFactory(),
                 ProducerType.SINGLE,
                 new BusySpinWaitStrategy()
         );
