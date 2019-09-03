@@ -8,9 +8,6 @@ import com.lmax.disruptor.dsl.ProducerType;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
-import static java.util.concurrent.Executors.*;
 
 /**
  * @description:
@@ -28,17 +25,17 @@ public class DisruptorMain {
 
         int ringBufferSize = 1024 * 1024;
 
-        ExecutorService executor = newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         //新版本中丢弃了该构造方法
-//        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(orderEventFactory, ringBufferSize, executor, ProducerType.SINGLE, new BlockingWaitStrategy());
-        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(
-                orderEventFactory,
-                ringBufferSize,
-                t -> {
-                    return new Thread();
-                },
-                ProducerType.SINGLE,
-                new BlockingWaitStrategy());
+        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(orderEventFactory, ringBufferSize, executor, ProducerType.SINGLE, new BlockingWaitStrategy());
+//        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(
+//                orderEventFactory,
+//                ringBufferSize,
+//                t -> {
+//                    return new Thread();
+//                },
+//                ProducerType.SINGLE,
+//                new BlockingWaitStrategy());
 
         //2、添加消费者的监听
         disruptor.handleEventsWith(new OrderEventHandler());
