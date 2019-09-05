@@ -22,8 +22,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         //构建一个线程池，用于提交任务
-        ExecutorService executor1 = Executors.newFixedThreadPool(1);
-        ExecutorService executor2 = Executors.newFixedThreadPool(5);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
 
         //1、构建Disruptor
         Disruptor<Trade> disruptor = new Disruptor<Trade>(
@@ -89,13 +88,12 @@ public class Main {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        executor1.submit(new TradePublish(latch, disruptor));
+        executor.submit(new TradePublish(latch, disruptor));
 
         latch.await();
 
         disruptor.shutdown();
-        executor1.shutdown();
-        executor2.shutdown();
+        executor.shutdown();
 
     }
 }

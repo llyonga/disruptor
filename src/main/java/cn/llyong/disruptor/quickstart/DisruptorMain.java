@@ -19,13 +19,21 @@ import java.util.concurrent.Executors;
 public class DisruptorMain {
 
     public static void main(String[] args) {
+        /**
+         * 通过RingBuffer方式发布：
+         * 1、创建一个数据传输对象（Event类）
+         * 2、创建一个事件工厂（实现EventFactory类）
+         * 3、创建一个事件处理类/消费者（实现EventHandler类）
+         * 4、创建一个事件的生产者（构造发方法传入一个RingBuffer，通过RingBuffer的publish方法发布对象）
+         * 5、实例化disruptor对象，配置对应的参数
+         *          disruptor对象会返回一个RingBuffer对象（也就是实际存储数据的容器对象），将获取到的RingBuffer对象传入生产者的构造器
+         */
 
         //1、实例化disruptor对象
         OrderEventFactory orderEventFactory = new OrderEventFactory();
 
         int ringBufferSize = 1024 * 1024;
 
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         //新版本中丢弃了该构造方法
 //        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(orderEventFactory, ringBufferSize, executor, ProducerType.SINGLE, new BlockingWaitStrategy());
         Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(
@@ -54,7 +62,6 @@ public class DisruptorMain {
         }
 
         disruptor.shutdown();
-        executor.shutdown();
 
 
 
